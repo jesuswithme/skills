@@ -33,6 +33,17 @@ description: "Turn a Korean text (Bible journey, epistle background, history) in
 - 저장 보드는 기본 'My First Board'. 사용자가 보드를 지정하면 그 보드로.
 - 크레딧 사용량(보통 곡당 1)을 최종 보고에 적고, 유튜브 업로드 전 이용 조건 확인을 안내한다.
 
+## 2-1. 그림 (codex-image — TopView 이미지 생성 금지)
+- 지도·무대 장면은 코드로 그리는 것이 기본. 그림 배경(인트로·아웃트로, 무대 장면 배경, 인물·장소 삽화)이 필요하거나 사용자가 그림을 요청할 때만 만든다.
+- **반드시 codex-image**(Codex CLI 0.123+, ChatGPT 로그인, gpt-image-2, 크레딧 없음)로 만든다. 먼저 `codex login status` 확인. 한 장씩, 장당 약 1분:
+```bash
+echo "Generate an image of '<영어 프롬프트>' in landscape 1536x1024 size using the image_gen tool. Do not run any shell commands." | codex exec --sandbox read-only --skip-git-repo-check -
+cp "$(ls -t ~/.codex/generated_images/*/*.png | head -1)" img/01_name.png
+```
+- `--dangerously-bypass-approvals-and-sandbox` 는 쓰지 않는다. 생성이 실패하면 cp 가 이전 그림을 복사하므로 만든 그림은 Read 로 확인한다.
+- 결과는 1536×1024(3:2) → `ImageOps.fit(img, (1920,1080))` 로 가운데를 16:9 로 잘라 쓴다. 프롬프트 꼬리: `cinematic digital painting, centered composition, no text, no watermark`. 시리즈 색감(7절)에 맞춘다.
+- Codex 를 쓸 수 없는 환경이면 그림 없이 코드 연출로 진행하고 보고에 적는다.
+
 ## 3. 나레이션 TTS (무료 Edge 신경망 음성)
 ```bash
 pip install --break-system-packages -q edge-tts shapely playwright
@@ -216,5 +227,6 @@ ffmpeg -y -v error -i full_old.mp4 -i full_old.mp4 -i fix.mp4 -filter_complex "[
 ## 13. 최종 보고 (한국어, 간결)
 - 무엇이 나왔는지(길이·해상도), 장면 흐름 요약(굵게 핵심 연출)
 - BGM: TopView 곡 수·크레딧, 전환 지점, 이용 조건 확인 안내
+- 그림을 만들었으면 codex-image 장수와 쓰인 장면
 - **원고에 없던 연출 추가 사항**(구절 표기, 연대, 비유, 해석) 목록 + 이전 편과 사실 표기가 다르면 짚기
 - 알려진 흠(잘림·겹침)과 구간 재렌더 제안, 원본 파일 크기
